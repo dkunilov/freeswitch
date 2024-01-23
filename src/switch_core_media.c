@@ -15809,7 +15809,7 @@ SWITCH_DECLARE(switch_status_t) switch_core_session_write_frame(switch_core_sess
 
 	switch_status_t status = SWITCH_STATUS_FALSE;
 	switch_frame_t *enc_frame = NULL, *write_frame = frame;
-	unsigned int flag = 0, need_codec = 0, perfect = 0, do_bugs = 0, do_write = 0, do_resample = 0, ptime_mismatch = 0, pass_cng = 0, resample = 0;
+	unsigned int flag = 0, need_codec = 0, perfect = 0, do_write = 0, do_resample = 0, ptime_mismatch = 0, pass_cng = 0, resample = 0;
 	int did_write_resample = 0;
 
 	switch_assert(session != NULL);
@@ -15902,7 +15902,6 @@ SWITCH_DECLARE(switch_status_t) switch_core_session_write_frame(switch_core_sess
 	}
 
 	if (session->bugs && !need_codec && !switch_test_flag(session, SSF_MEDIA_BUG_TAP_ONLY)) {
-		do_bugs = TRUE;
 		need_codec = TRUE;
 	}
 
@@ -15914,7 +15913,6 @@ SWITCH_DECLARE(switch_status_t) switch_core_session_write_frame(switch_core_sess
 
 	if ((frame->flags & SFF_NOT_AUDIO)) {
 		do_resample = 0;
-		do_bugs = 0;
 		need_codec = 0;
 	}
 
@@ -16129,7 +16127,6 @@ SWITCH_DECLARE(switch_status_t) switch_core_session_write_frame(switch_core_sess
 			}
 
 			if (switch_test_flag(bp, SMBF_WRITE_REPLACE)) {
-				do_bugs = 0;
 				if (bp->callback) {
 					bp->write_replace_frame_in = write_frame;
 					bp->write_replace_frame_out = write_frame;
@@ -16153,12 +16150,6 @@ SWITCH_DECLARE(switch_status_t) switch_core_session_write_frame(switch_core_sess
 		if (prune) {
 			switch_core_media_bug_prune(session);
 		}
-	}
-
-	if (do_bugs) {
-		do_write = TRUE;
-		write_frame = frame;
-		goto done;
 	}
 
 	if (session->write_codec) {
